@@ -1,0 +1,291 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-panel: rgba(15, 15, 15, 0.85);
+    --text-normal: #b8b8b8;
+    --text-voice: #d4af37;
+    --text-stage: #e8e8e8;
+    --text-inner: #888;
+    --choice-bg: rgba(30, 30, 30, 0.6);
+    --choice-hover: rgba(212, 175, 55, 0.3);
+    --choice-border: rgba(212, 175, 55, 0.5);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-normal);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scene Container */
+#scene-container {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    overflow: hidden;
+    background: black;
+}
+
+#scene-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+}
+
+#scene-image.scene-fade {
+    opacity: 0;
+}
+
+#scene-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to bottom, transparent, var(--bg-dark));
+    pointer-events: none;
+}
+
+/* Text Panel */
+#text-panel {
+    flex: 1;
+    padding: 20px;
+    background: var(--bg-panel);
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#story-text {
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 60px;
+}
+
+#story-text p {
+    margin-bottom: 12px;
+}
+
+/* Text Styles */
+.voice-line {
+    color: var(--text-voice);
+    font-style: italic;
+    font-size: 15px;
+    margin: 10px 0;
+    padding-left: 10px;
+    border-left: 2px solid var(--text-voice);
+}
+
+.stage-line {
+    color: var(--text-stage);
+    font-family: 'Crimson Text', serif;
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.inner-thought {
+    color: var(--text-inner);
+    font-style: italic;
+    font-size: 14px;
+}
+
+.narration {
+    color: var(--text-normal);
+}
+
+/* Choices */
+#choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.choice-button {
+    background: var(--choice-bg);
+    border: 1px solid var(--choice-border);
+    color: var(--text-normal);
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    backdrop-filter: blur(5px);
+}
+
+.choice-button:hover,
+.choice-button:active {
+    background: var(--choice-hover);
+    border-color: var(--text-voice);
+    transform: translateX(5px);
+}
+
+/* Progress Bar */
+#progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--text-voice), #ffd700);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+/* Start Screen */
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+}
+
+#start-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.start-content h1 {
+    font-size: 72px;
+    font-weight: 600;
+    color: var(--text-voice);
+    margin-bottom: 10px;
+    letter-spacing: 8px;
+}
+
+.start-content h2 {
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--text-normal);
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: var(--text-inner);
+    margin-bottom: 40px;
+}
+
+#start-button {
+    background: var(--choice-bg);
+    border: 2px solid var(--text-voice);
+    color: var(--text-voice);
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+#start-button:hover {
+    background: var(--text-voice);
+    color: var(--bg-dark);
+    transform: scale(1.05);
+}
+
+.hint {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-inner);
+}
+
+/* Typewriter Effect */
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.typing {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typewriter 2s steps(40) 1s forwards;
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    #scene-container {
+        height: 55vh;
+    }
+
+    #text-panel {
+        padding: 15px;
+    }
+
+    #story-text {
+        font-size: 15px;
+    }
+
+    .choice-button {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .start-content h1 {
+        font-size: 48px;
+        letter-spacing: 6px;
+    }
+
+    .start-content h2 {
+        font-size: 20px;
+    }
+}
+
+/* Scrollbar Styling */
+#text-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#text-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#text-panel::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+}
+
+#text-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VSVN — Zone 1: Waking Garden</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Scene Image -->
+        <div id="scene-container">
+            <img id="scene-image" src="" alt="Scene" class="scene-fade">
+            <div id="scene-overlay"></div>
+        </div>
+
+        <!-- Text Panel -->
+        <div id="text-panel">
+            <div id="story-text"></div>
+            <div id="choices-container"></div>
+        </div>
+
+        <!-- Audio Player (hidden but functional) -->
+        <audio id="voice-audio" preload="auto"></audio>
+        
+        <!-- Progress Indicator -->
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <div class="start-content">
+                <h1>VSVN</h1>
+                <h2>Zone 1: Waking Garden</h2>
+                <p class="subtitle">by LoonMight 🦆</p>
+                <button id="start-button">Begin</button>
+                <p class="hint">Best experienced with sound on</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ink Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/inkjs@2.2.2/dist/ink.min.js"></script>
+    <!-- Player Logic -->
+    <script src="js/player.js"></script>
+</body>
+</html>
