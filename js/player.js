@@ -121,19 +121,37 @@ class VSVNPlayer {
     
     processTags(tags) {
         tags.forEach(tag => {
-            const [key, value] = tag.split(':');
+            // Tags come as "visual black" or "visual:black" — handle both
+            let key, value;
+            if (tag.includes(':')) {
+                [key, value] = tag.split(':');
+            } else {
+                const parts = tag.split(' ');
+                key = parts[0];
+                value = parts.slice(1).join(' ');
+            }
             
-            if (key === 'visual' || key === 'image') {
+            if ((key === 'visual' || key === 'image') && value) {
                 this.changeImage(value.trim());
             }
         });
     }
     
     changeImage(imageKey) {
-        const imagePath = this.imageMap[imageKey] || this.imageMap['black'];
+        const imagePath = this.imageMap[imageKey];
+        if (!imagePath) return; // Skip unknown image keys
+        
         const sceneImage = document.getElementById('scene-image');
         
-        // Fade out
+        // If no image loaded yet, just show it immediately
+        if (!sceneImage.src || sceneImage.src === window.location.href) {
+            sceneImage.src = imagePath;
+            sceneImage.classList.remove('scene-fade');
+            this.currentImage = imageKey;
+            return;
+        }
+        
+        // Fade transition
         sceneImage.classList.add('scene-fade');
         
         setTimeout(() => {
