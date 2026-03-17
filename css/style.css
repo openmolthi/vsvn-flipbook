@@ -21,23 +21,26 @@ body {
     background: var(--bg-dark);
     color: var(--text-normal);
     overflow: hidden;
-    height: 100vh;
+    height: 100dvh;
     width: 100vw;
 }
 
 #game-container {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Scene Container */
 #scene-container {
     position: relative;
     width: 100%;
-    height: 60vh;
+    flex: 0 0 40vh;
+    min-height: 150px;
+    max-height: 40vh;
     overflow: hidden;
     background: black;
 }
@@ -67,10 +70,13 @@ body {
 /* Text Panel */
 #text-panel {
     flex: 1;
+    min-height: 0;
     padding: 20px;
+    padding-bottom: 30px;
     background: var(--bg-panel);
     backdrop-filter: blur(10px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -246,7 +252,8 @@ body {
 /* Mobile Optimization */
 @media (max-width: 768px) {
     #scene-container {
-        height: 55vh;
+        flex: 0 0 35vh;
+        max-height: 35vh;
     }
 
     #text-panel {
