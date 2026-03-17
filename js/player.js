@@ -8,6 +8,7 @@ class VSVNPlayer {
         this.currentAudio = null;
         this.progress = 0;
         this.maxProgress = 0;
+        this.waitingForTap = false;
         
         // Image mapping
         this.imageMap = {
@@ -24,7 +25,12 @@ class VSVNPlayer {
             'water_pour': 'images/fear-shadow.png',
             'cherry_tree_half_dead': 'images/cherry-tree.png',
             'gold_lines': 'images/cherry-tree.png',
-            'title_card': 'images/compass-assembly.png'
+            'title_card': 'images/compass-assembly.png',
+            // Additional common variations
+            'garden_wake': 'images/garden-wake.png',
+            'glass_shards': 'images/glass-shards.png',
+            'fear_shadow': 'images/fear-shadow.png',
+            'joy_petal': 'images/joy-petal.png'
         };
         
         // Voice audio mapping
@@ -69,6 +75,15 @@ class VSVNPlayer {
             this.startGame();
         });
         
+        // Set up tap-to-continue on text panel
+        const textPanel = document.getElementById('text-panel');
+        textPanel.addEventListener('click', (e) => {
+            // Only trigger if we're waiting and didn't click on a choice button
+            if (this.waitingForTap && !e.target.classList.contains('choice-button')) {
+                this.handleTapToContinue();
+            }
+        });
+        
         // Load saved progress
         const savedState = localStorage.getItem('vsvn-zone1-save');
         if (savedState) {
@@ -110,9 +125,16 @@ class VSVNPlayer {
         // Display text
         this.displayText(storyText);
         
-        // Display choices
+        // Display choices or enable tap-to-continue
         if (this.story.currentChoices.length > 0) {
             this.displayChoices();
+            this.waitingForTap = false;
+        } else if (this.story.canContinue) {
+            // No choices but story can continue — enable tap to continue
+            this.waitingForTap = true;
+            this.showTapIndicator();
+        } else {
+            this.waitingForTap = false;
         }
         
         // Save state
@@ -126,20 +148,26 @@ class VSVNPlayer {
             if (tag.includes(':')) {
                 [key, value] = tag.split(':');
             } else {
-                const parts = tag.split(' ');
+                const parts = tag.trim().split(/\s+/);
                 key = parts[0];
-                value = parts.slice(1).join(' ');
+                value = parts.slice(1).join('_'); // Join with underscore for multi-word keys
             }
             
+            key = key.trim().toLowerCase();
+            value = value.trim().toLowerCase().replace(/\s+/g, '_');
+            
             if ((key === 'visual' || key === 'image') && value) {
-                this.changeImage(value.trim());
+                this.changeImage(value);
             }
         });
     }
     
     changeImage(imageKey) {
         const imagePath = this.imageMap[imageKey];
-        if (!imagePath) return; // Skip unknown image keys
+        if (!imagePath) {
+            console.warn(`Image key not found: "${imageKey}"`);
+            return; // Skip unknown image keys
+        }
         
         const sceneImage = document.getElementById('scene-image');
         
@@ -169,13 +197,13 @@ class VSVNPlayer {
         // Parse text for formatting
         const lines = text.split('\n').filter(line => line.trim());
         
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
             const p = document.createElement('p');
             
             // Check for Voice lines
             if (line.includes('<b>VOICE:</b>')) {
                 const voiceText = line.replace('<b>VOICE:</b>', '').trim();
-                p.className = 'voice-line';
+                p.className = 'voice-line fade-in';
                 p.innerHTML = `<strong>VOICE:</strong> ${voiceText}`;
                 
                 // Play audio for this line
@@ -183,14 +211,17 @@ class VSVNPlayer {
             }
             // Check for inner thoughts
             else if (line.includes('<i>') && line.includes('</i>')) {
-                p.className = 'inner-thought';
+                p.className = 'inner-thought fade-in';
                 p.innerHTML = line.replace(/<\/?i>/g, '');
             }
             // Regular narration
             else {
-                p.className = 'narration';
+                p.className = 'narration fade-in';
                 p.innerHTML = line.replace(/<\/?[^>]+(>|$)/g, '');
             }
+            
+            // Stagger the animation delay
+            p.style.animationDelay = `${index * 0.15}s`;
             
             storyTextDiv.appendChild(p);
         });
@@ -240,6 +271,68 @@ class VSVNPlayer {
             });
             choicesContainer.appendChild(button);
         });
+        
+        // Scroll to choices after a short delay (to let animations settle)
+        setTimeout(() => {
+            this.scrollToChoices();
+        }, 300);
+    }
+    
+    scrollToChoices() {
+        const choicesContainer = document.getElementById('choices-container');
+        const textPanel = document.getElementById('text-panel');
+        
+        if (choicesContainer.children.length > 0) {
+            // Check if choices are visible
+            const containerRect = textPanel.getBoundingClientRect();
+            const choicesRect = choicesContainer.getBoundingClientRect();
+            
+            // If choices are below the fold, show indicator and scroll
+            if (choicesRect.top > containerRect.bottom - 50) {
+                this.showChoicesIndicator();
+            }
+            
+            // Smooth scroll to choices
+            choicesContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'end',
+                inline: 'nearest'
+            });
+        }
+    }
+    
+    showChoicesIndicator() {
+        // Add pulsing indicator if not already present
+        let indicator = document.getElementById('choices-indicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'choices-indicator';
+            indicator.className = 'pulse-indicator';
+            indicator.innerHTML = '↓';
+            document.getElementById('text-panel').appendChild(indicator);
+            
+            // Remove after scrolling
+            setTimeout(() => {
+                indicator.classList.add('fade-out');
+                setTimeout(() => indicator.remove(), 500);
+            }, 2000);
+        }
+    }
+    
+    showTapIndicator() {
+        const choicesContainer = document.getElementById('choices-container');
+        choicesContainer.innerHTML = '<div class="tap-hint">Tap to continue...</div>';
+    }
+    
+    handleTapToContinue() {
+        if (this.waitingForTap && this.story.canContinue) {
+            this.waitingForTap = false;
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+            setTimeout(() => {
+                this.continueStory();
+            }, 200);
+        }
     }
     
     makeChoice(index) {
@@ -291,7 +384,7 @@ class VSVNPlayer {
     
     endStory() {
         const storyTextDiv = document.getElementById('story-text');
-        storyTextDiv.innerHTML += '<p class="narration" style="text-align: center; margin-top: 30px; color: var(--text-voice);">— Zone 1 Complete —</p>';
+        storyTextDiv.innerHTML += '<p class="narration fade-in" style="text-align: center; margin-top: 30px; color: var(--text-voice);">— Zone 1 Complete —</p>';
         
         // Update progress to 100%
         const progressFill = document.getElementById('progress-fill');
